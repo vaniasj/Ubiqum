@@ -1,0 +1,90 @@
+# Ubiqum Module 2 Task 4
+# Vania Sao Jose
+# October 2019
+
+library(arules)
+library(arulesViz)
+library(dplyr)
+library(Matrix)
+
+
+#loading data
+setwd("/Users/vaniasaojose/Desktop/Ubiqum/DA/DAII/Task4")
+df <- read.transactions("Elect_17.csv", format = c("basket"), sep = ",")
+
+#checking the data
+summary(df)
+
+df
+
+inspect(df [1:10])
+length(df)
+size(df)
+LIST(df)
+itemLabels(df)
+itemFrequency(df)
+
+#plotting the data 
+itemFrequencyPlot(df, support= 0.1)
+itemFrequencyPlot(df, topN=20)
+
+# mine some rules
+rules <- apriori(df, parameter = list(support=0.004, confidence=0.5, minlen=2))
+
+rules
+
+summary(rules)
+
+plot(rules)
+
+# sorting rules
+inspect(sort(rules, by="lift")[1:20])
+inspect(sort(rules, by="confidence")[1:20])
+inspect(sort(rules, by="support")[1:20])
+
+# for better comparison we sort the rules by confidence
+
+rules <- sort(rules, by = "support")
+quality(rules)$improvement <- interestMeasure(rules, measure = "improvement")
+inspect(rules)
+is.redundant(rules)
+
+# redundant rules
+inspect(rules[is.redundant(rules)])
+
+# non-redundant rules
+inspect(rules[!is.redundant(rules)])
+
+# removing non-redundant rules
+rulesNotRedundant <- rules[!is.redundant(rules)]
+
+#ploting new rules set
+plot(rulesNotRedundant)
+
+rulesNotRedundant
+
+summary(rulesNotRedundant)
+
+#sorting rules
+inspect(sort(rulesNotRedundant, by="lift")[1:30])
+inspect(sort(rulesNotRedundant, by="support")[1:30])
+inspect(sort(rulesNotRedundant, by="confidence")[1:30])
+
+#plotting rules and trying some graffics
+plot(rulesNotRedundant[1:10], method="graph", control=list(type="items")) 
+
+plot(rulesNotRedundant, method = "two-key plot")
+
+plot(rulesNotRedundant, method = "grouped")
+
+plot(rulesNotRedundant, method = "grouped", control = list(k = 10))
+
+sel <- plot(rulesNotRedundant, method = "grouped", interactive = TRUE)
+
+plot(rulesNotRedundant, method = "graph",  engine = "htmlwidget")
+
+top10subRules <- head(rulesNotRedundant, n = 10, by = "confidence")
+plot(top10subRules, method = "graph",  engine = "htmlwidget")
+
+subrules2 <- head(rulesNotRedundant, n = 10, by = "lift")
+plot(subrules2, method = "graph")
